@@ -163,6 +163,9 @@ class Game extends React.Component {
             onClick={(i) => this.handleClick(i)}
             highlight={hlPos}
           />
+          <div className="source-div">
+            <a href='https://github.com/jamnguyen/ReactTutorial'>Source code</a>
+          </div>
         </div>
         <div className="game-info">
           <div>{status}</div>
