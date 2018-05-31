@@ -3,10 +3,25 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Square(props) {
+  let renderItem;
+  if (props.value === 'X') {
+    renderItem = (
+      <i className={"fas fa-times move-x " + (props.highlight.indexOf(props.pos)>=0 ? 'highlight':'')}></i>
+    )
+  } else if (props.value === 'O') {
+    renderItem = (
+      <i className={"fas fa-circle move-o " + (props.highlight.indexOf(props.pos)>=0 ? 'highlight':'')}></i>
+    )
+  }
+
+  let border = '';
+  if (props.drawBorderRight) border += 'border-right ';
+  if (props.drawBorderBottom) border += 'border-bottom ';
+
   return (
-    <button className={"square " + (props.highlight.indexOf(props.pos)>=0 ? 'highlight':'')}
+    <button className={"square " + border}
             onClick={props.onClick}>
-      {props.value}
+      {renderItem}
     </button>
   );
 }
@@ -34,6 +49,41 @@ class Board extends React.Component {
   }
 
   renderSquare(i) {
+    let drawBorderRight = false;
+    let drawBorderBottom = false;
+    switch(i) {
+      case 0:
+        drawBorderRight = true;
+        drawBorderBottom = true;
+        break;
+      case 1:
+        drawBorderRight = true;
+        drawBorderBottom = true;
+        break;
+      case 2:
+        drawBorderBottom = true;
+        break;
+      case 3:
+        drawBorderRight = true;
+        drawBorderBottom = true;
+        break;
+      case 4:
+        drawBorderRight = true;
+        drawBorderBottom = true;
+        break;
+      case 5:
+        drawBorderBottom = true;
+        break;
+      case 6:
+        drawBorderRight = true;
+        break;
+      case 7:
+        drawBorderRight = true;
+        break;
+      case 8:
+      default:
+        break;
+    }
     return (
       <Square
         value={this.props.squares[i]}
@@ -41,6 +91,8 @@ class Board extends React.Component {
         key={i}
         onClick={() => this.props.onClick(i)}
         highlight={this.props.highlight}
+        drawBorderRight={drawBorderRight}
+        drawBorderBottom={drawBorderBottom}
       />
     );
   }  
@@ -128,12 +180,12 @@ class Game extends React.Component {
     const moves = history.map((step, move) => {
       const coord = '(' + (1 + step.pos % 3) + ', ' + (1 + Math.floor((step.pos)/3)) + ')';
       const desc = move ?
-        `Go to move #${move}: ${coord}` :
-        'Go to start';
+        `Move #${move}: ${coord}` :
+        'Start';
       return (
         <li key={move}>
           <button
-            className={move===this.state.stepNumber ? 'highlight' : ''}
+            className={move===this.state.stepNumber ? 'history-highlight' : ''}
             onClick={() => this.jumpTo(move)}
           >
             {desc}
@@ -148,29 +200,43 @@ class Game extends React.Component {
     if(winner){
       status = winner.player + ' won!';
       hlPos = winner.moves;
-    }
-    else {
+    } else if (this.state.stepNumber === 9) {
+      status = 'Tied!';
+      hlPos = [currentMove.pos];
+    } else {
       status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
       hlPos = [currentMove.pos];
     }
 
 
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={currentMove.squares}
-            onClick={(i) => this.handleClick(i)}
-            highlight={hlPos}
-          />
+      <div className="game-wrapper">
+        <div className="game-header">
+          <div className="game-title">React Tic Tac Toe</div>
           <div className="source-div">
-            <a href='https://github.com/jamnguyen/ReactTutorial'>Source code</a>
+            <a href='https://github.com/jamnguyen/ReactTutorial'>View Github</a>
+          </div>
+          <div className="game-notify">
+            {status}
           </div>
         </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <button onClick={() => this.handleSortClick()}>Toggle order</button>
-          <ol>{tMoves}</ol>
+        <div className="game">
+          <div className="game-board">
+            <Board
+              squares={currentMove.squares}
+              onClick={(i) => this.handleClick(i)}
+              highlight={hlPos}
+            />
+          </div>
+          <div className="game-info">
+            <div className="game-info-left">
+              <div className="game-info-title">History</div>
+              <button className="game-info-toggle" onClick={() => this.handleSortClick()}>Toggle order</button>
+            </div>
+            <div className="game-info-right">
+              <ol>{tMoves}</ol>
+            </div>
+          </div>
         </div>
       </div>
     );
